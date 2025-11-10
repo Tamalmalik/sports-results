@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Sports Event Results</title>
+<style>
+body { font-family: Arial, sans-serif; background: #f8f9fa; padding: 20px; }
+h1 { text-align: center; color: #007bff; }
+table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+th { background-color: #007bff; color: white; }
+input { margin: 10px; padding: 5px; width: 45%; }
+</style>
+</head>
+<body>
+<h1>🏆 Sports Event Results 🏆</h1>
+<input type="text" id="eventSearch" placeholder="Search by Event Name">
+<input type="text" id="schoolSearch" placeholder="Search by School Name">
+<table id="resultsTable">
+  <thead>
+    <tr><th>Event</th><th>Position</th><th>Student</th><th>School</th></tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script>
+const sheetId = "1-J6qnSLw9X3xJcW2-UEuOSh7xJVg-tBF0duZH4R28kU";
+const sheetUrl = `https://docs.google.com/spreadsheets/d/1-J6qnSLw9X3xJcW2-UEuOSh7xJVg-tBF0duZH4R28kU/edit?usp=sharing`;
+
+fetch(sheetUrl)
+  .then(res => res.text())
+  .then(data => {
+    const json = JSON.parse(data.substr(47).slice(0, -2));
+    const rows = json.table.rows;
+    const tableBody = document.querySelector("#resultsTable tbody");
+
+    rows.forEach(r => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${r.c[0]?.v || ""}</td>
+        <td>${r.c[1]?.v || ""}</td>
+        <td>${r.c[2]?.v || ""}</td>
+        <td>${r.c[3]?.v || ""}</td>`;
+      tableBody.appendChild(tr);
+    });
+
+    // Search filter
+    const eventSearch = document.getElementById("eventSearch");
+    const schoolSearch = document.getElementById("schoolSearch");
+
+    function filter() {
+      const eVal = eventSearch.value.toLowerCase();
+      const sVal = schoolSearch.value.toLowerCase();
+      Array.from(tableBody.rows).forEach(row => {
+        const matchE = row.cells[0].innerText.toLowerCase().includes(eVal);
+        const matchS = row.cells[3].innerText.toLowerCase().includes(sVal);
+        row.style.display = (matchE && matchS) ? "" : "none";
+      });
+    }
+
+    eventSearch.addEventListener("keyup", filter);
+    schoolSearch.addEventListener("keyup", filter);
+  });
+</script>
+</body>
+</html>
